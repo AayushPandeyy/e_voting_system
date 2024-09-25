@@ -26,7 +26,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         session_start();
         $_SESSION['user_id'] = $pdo->lastInsertId();
         $_SESSION['email'] = $email;
-        header("Location: dashboard.php"); // Redirect to a secure page
+        header("Location: userDashboard.php"); // Redirect to a secure page
         exit;
     } else {
         header("Location: index.php?error=Registration failed.");

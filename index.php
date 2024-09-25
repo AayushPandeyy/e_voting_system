@@ -2,7 +2,7 @@
 
 session_start();
 if (isset($_SESSION['user_id'])) {
-    header("Location: dashboard.php"); // Redirect if already logged in
+    header("Location: userDashboard.php"); // Redirect if already logged in
     exit;
 }
 include 'db.php';

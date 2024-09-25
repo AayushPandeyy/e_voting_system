@@ -17,7 +17,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Set session variables
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['email'] = $email;
-        header("Location: dashboard.php"); // Redirect to a secure page
+        header("Location: userDashboard.php"); // Redirect to a secure page
         exit;
     } else {
         header("Location: index.php?error=Invalid Email or Password");

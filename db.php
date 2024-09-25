@@ -4,10 +4,8 @@ $username = "root"; // Your database username
 $password = "Iamaprogram"; // Your database password
 $dbname = "evoting_db"; // Your database name
 
-try {
-    $pdo = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    echo "Connection failed: " . $e->getMessage();
+$conn = new mysqli($servername, $username, $password, $dbname);
+if($conn->connect_error){
+    die("Error connecting to daatabase");
 }
 ?>
