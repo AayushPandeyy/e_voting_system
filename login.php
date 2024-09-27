@@ -3,25 +3,40 @@ session_start();
 include 'db.php'; // Include the database connection
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Collect form data
-    $email = htmlspecialchars($_POST['email']);
-    $password = htmlspecialchars($_POST['password']);
+    $user = $_POST['email'];
+    $pass = $_POST['password'];
 
-    // Retrieve user from database
-    $stmt = $pdo->prepare("SELECT id, password FROM users WHERE email = :email");
-    $stmt->execute(['email' => $email]);
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    // Prepare and bind
+    $stmt = $conn->prepare("SELECT id, password FROM users WHERE email = ? ");
+    $stmt->bind_param("s", $user); // Use the same variable for username and email
 
-    // Check if user exists and verify password
-    if ($user && password_verify($password, $user['password'])) {
-        // Set session variables
-        $_SESSION['user_id'] = $user['id'];
-        $_SESSION['email'] = $email;
-        header("Location: userDashboard.php"); // Redirect to a secure page
-        exit;
+    // Execute the statement
+    $stmt->execute();
+    $stmt->store_result();
+
+    // Check if user exists
+    if ($stmt->num_rows > 0) {
+        // Bind result
+        $stmt->bind_result($id, $hashed_password);
+        $stmt->fetch();
+
+        // Verify the password
+        if (password_verify($pass, $hashed_password)) {
+            // Password is correct, set session variables
+            $_SESSION['user_id'] = $id;
+            $_SESSION['email'] = $user;
+
+            // Redirect to the dashboard or homepage
+            header("Location: userDashboard.php");
+            exit();
+        } else {
+            echo "Invalid password.";
+        }
     } else {
-        header("Location: index.php?error=Invalid Email or Password");
-        exit;
+        echo "No user found with that username or email.";
     }
+
+    // Close the statement and connection
+    $stmt->close();
 }
 ?>
