@@ -29,7 +29,8 @@ $result = $conn->query($sql);
                 <li><a href="#" onclick="showPage('available-polls')">Available Polls</a></li>
                 <li><a href="#" onclick="showPage('my-votes')">My Votes</a></li>
                 <li><a href="#" onclick="showPage('profile')">Profile</a></li>
-                <li><a href="#" onclick="logout()">Logout</a></li>
+                <li><a href="logout.php">Logout</a></li>
+                
             </ul>
         </div>
 
