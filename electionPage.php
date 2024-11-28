@@ -1,5 +1,10 @@
 <?php
 include 'db.php';
+
+// if (!isset($_SESSION['user_id'])) {
+//     header("Location: index.php");
+//     exit();
+// }
 // Assuming a database connection is established here
 $electionId = $_GET["id"];
 // Fetch election details from the database
@@ -15,6 +20,18 @@ $stmtCandidates = $conn->prepare($queryCandidates);
 $stmtCandidates->execute();
 $candidates = $stmtCandidates->get_result();
 
+session_start();
+
+if (!isset($_SESSION['authenticated_elections'])) {
+    $_SESSION['authenticated_elections'] = array();
+}
+
+// Check if the user has authenticated for this election
+if (!in_array($electionId, $_SESSION['authenticated_elections'])) {
+    header("Location: userDashboard.php");
+    exit();
+}
+
 ?>
 
 
@@ -29,31 +46,32 @@ $candidates = $stmtCandidates->get_result();
     <link rel="stylesheet" href="./css/electionPageStyle.css">
     
 </head>
+
 <body>
-    <div class="container">
+<div class="container">
         <header>
-            <h1><?php echo $election['Title']; ?></h1>
-            <p class="election-info"><strong>Description:</strong> <?php echo $election['Description']; ?></p>
-            <p class="election-info"><strong>Start Date:</strong> <?php echo date('F j, Y', strtotime($election['StartDate'])); ?></p>
-            <p class="election-info"><strong>End Date:</strong> <?php echo date('F j, Y', strtotime($election['EndDate'])); ?></p>
+            <h1><?php echo htmlspecialchars($election['Title']); ?></h1>
+            <p><strong>Description:</strong> <?php echo htmlspecialchars($election['Description']); ?></p>
+            <p><strong>Start Date:</strong> <?php echo htmlspecialchars($election['StartDate']); ?></p>
+            <p><strong>End Date:</strong> <?php echo htmlspecialchars($election['EndDate']); ?></p>
         </header>
 
         <h2>Candidates</h2>
         <div class="candidate-grid">
             <?php while ($candidate = $candidates->fetch_assoc()): ?>
                 <div class="candidate-card">
-                    <img src="<?php echo $candidate['ProfilePicture']; ?>" alt="<?php echo $candidate['Name']; ?>" class="candidate-image">
-                    <h3><?php echo $candidate['Name']; ?></h3>
-                    <p class="party-name"><?php echo $candidate['Party']; ?></p>
-                    <p><strong>Votes:</strong> <?php echo $candidate['VotesCount']; ?></p>
-                    <button class="vote-button" onclick="alert('You voted for <?php echo $candidate['Name']; ?>!')">Vote</button>
+                    <img src="<?php echo htmlspecialchars($candidate['ProfilePicture']); ?>" alt="Candidate Image">
+                    <h3><?php echo htmlspecialchars($candidate['Name']); ?></h3>
+                    <p><?php echo htmlspecialchars($candidate['Party']); ?></p>
+                    <p><strong>Votes:</strong> <?php echo htmlspecialchars($candidate['VotesCount']); ?></p>
+                    <button onclick="vote(<?php echo $electionId; ?>, <?php echo $candidate['CandidateID']; ?>)">Vote</button>
                 </div>
             <?php endwhile; ?>
         </div>
     </div>
 
     <footer>
-        <p>&copy; <?php echo date("Y"); ?> Your Election Platform. All rights reserved.</p>
+        <p>&copy; <?php echo date("Y"); ?> E-Voting. All rights reserved.</p>
     </footer>
     
 

@@ -1,7 +1,32 @@
 <?php 
+session_start();
 include 'db.php';
-$sql = "SELECT * FROM Election";
+$sql = "SELECT * FROM Election WHERE EndDate >= CURDATE()";
 $result = $conn->query($sql);
+$userId = $_SESSION['user_id'];
+
+// Fetch the username from the database
+$sql = "SELECT * FROM users WHERE id = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $userId);
+$stmt->execute();
+$result = $stmt->get_result();
+
+$username = null;
+if ($result->num_rows > 0) {
+    $row = $result->fetch_assoc();
+    $fullname = $row['full_name'];
+    $email = $row['email'];
+    $idNumber = $row['id_number'];
+} else {
+    $username = "Unknown User";
+}
+
+// Close the connection
+$stmt->close();
+$conn->close();
+
+
 
 ?>
 <!DOCTYPE html>
@@ -14,7 +39,30 @@ $result = $conn->query($sql);
     <link rel="stylesheet" href="./css/userStyles.css">
     <style>
         /* General Styles */
+        .instructions-container {
+  background-color: #f9f9f9;
+  border: 2px solid #ddd;
+  border-radius: 10px;
+  padding: 20px;
+  margin: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
 
+.instructions-container h2 {
+  color: #333;
+  font-size: 24px;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.instructions-container ol {
+  color: #555;
+  font-size: 18px;
+}
+
+.instructions-container li {
+  margin-bottom: 10px;
+}
 
     </style>
     
@@ -23,9 +71,9 @@ $result = $conn->query($sql);
     <div class="user-dashboard-container">
         <!-- Sidebar -->
         <div class="sidebar">
-            <h2>Welcome, User</h2>
+            <h2>Welcome, <?php echo htmlspecialchars($fullname); ?></h2>
             <ul>
-                <li><a href="#" onclick="showPage('dashboard')">Dashboard</a></li>
+                <li><a href="#" onclick="showPage('instructions')">Instructions</a></li>
                 <li><a href="#" onclick="showPage('available-polls')">Available Polls</a></li>
                 <li><a href="#" onclick="showPage('my-votes')">My Votes</a></li>
                 <li><a href="#" onclick="showPage('profile')">Profile</a></li>
@@ -36,9 +84,18 @@ $result = $conn->query($sql);
 
         <!-- Main Content -->
         <div class="main-content">
-            <div id="dashboard" class="page active">
-                <h1>User Dashboard</h1>
-                <p>Welcome to your dashboard!</p>
+            <div id="instructions" class="page active">
+            <div class="instructions-container">
+    <h2>How to Use the E-Voting System</h2>
+    <ol>
+        <li>Login to your account using your credentials.</li>
+        <li>Navigate to the "Available Polls" section to view active elections.</li>
+        <li>Click "Vote Now" on the election you wish to participate in.</li>
+        <li>Enter your password to confirm your identity.</li>
+        <li>Submit your vote and view your voting history in the "My Votes" section.</li>
+        <li>Ensure your profile details are correct in the "Profile" section.</li>
+    </ol>
+</div>
             </div>
 
             <div id="available-polls" class="page">
@@ -83,10 +140,25 @@ $result = $conn->query($sql);
                 </table>
             </div>
 
-            <div id="profile" class="page">
-                <h2>User Profile</h2>
-                <p>Profile details go here.</p>
-            </div>
+            <div class="profile-card page" id="profile">
+        <img src="/api/placeholder/150/150" alt="Profile Picture" class="profile-image">
+        
+        <div class="profile-name" id="fullname"><?php echo htmlspecialchars($fullname); ?></div>
+        
+        <div class="profile-details">
+            <div class="profile-label">ID Number</div>
+            <div id="idnumber" class="profile-value"><?php echo htmlspecialchars($idNumber); ?></div>
+            
+            <div class="profile-label">Email Address</div>
+            <div id="email" class="profile-value"><?php echo htmlspecialchars($email); ?></div>
+        </div>
+        
+        <div class="social-links">
+            <a href="#" class="social-icon">✉️</a>
+            <a href="#" class="social-icon">📱</a>
+            <a href="#" class="social-icon">🌐</a>
+        </div>
+    </div>
         </div> <!-- End of Main Content -->
 
         <!-- Password Modal -->

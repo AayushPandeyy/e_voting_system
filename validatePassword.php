@@ -1,4 +1,5 @@
 <?php
+session_start();
 include 'db.php';
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
@@ -12,6 +13,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
+        $_SESSION['authenticated_elections'][] = $electionId;
         header("Location: electionPage.php?id=$electionId");
         exit();
     } else {
