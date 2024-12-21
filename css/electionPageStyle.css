@@ -93,3 +93,12 @@ footer {
   font-size: 0.9em;
   color: #6c757d;
 }
+
+button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+button.voted {
+  opacity: 0.7;
+}

@@ -20,6 +20,14 @@ $stmtCandidates = $conn->prepare($queryCandidates);
 $stmtCandidates->execute();
 $candidates = $stmtCandidates->get_result();
 
+// Check if user has already voted
+$queryVoteCheck = "SELECT COUNT(*) as hasVoted FROM Votes 
+                   WHERE ElectionID = ? AND VoterID = ?";
+$stmtVoteCheck = $conn->prepare($queryVoteCheck);
+$stmtVoteCheck->bind_param("ii", $electionId, $_SESSION['user_id']);
+$stmtVoteCheck->execute();
+$hasVoted = $stmtVoteCheck->get_result()->fetch_assoc()['hasVoted'] > 0;
+
 session_start();
 
 if (!isset($_SESSION['authenticated_elections'])) {
@@ -64,7 +72,13 @@ if (!in_array($electionId, $_SESSION['authenticated_elections'])) {
                     <h3><?php echo htmlspecialchars($candidate['Name']); ?></h3>
                     <p><?php echo htmlspecialchars($candidate['Party']); ?></p>
                     <p><strong>Votes:</strong> <?php echo htmlspecialchars($candidate['VotesCount']); ?></p>
-                    <button onclick="vote(<?php echo $electionId; ?>, <?php echo $candidate['CandidateID']; ?>)">Vote</button>
+                    <button 
+    onclick="vote(<?php echo $electionId; ?>, <?php echo $candidate['CandidateID']; ?>)"
+    <?php echo $hasVoted ? 'disabled' : ''; ?>
+    class="<?php echo $hasVoted ? 'voted' : ''; ?>"
+>
+    <?php echo $hasVoted ? 'Already Voted' : 'Vote'; ?>
+</button>
                 </div>
             <?php endwhile; ?>
         </div>
@@ -74,6 +88,28 @@ if (!in_array($electionId, $_SESSION['authenticated_elections'])) {
         <p>&copy; <?php echo date("Y"); ?> E-Voting. All rights reserved.</p>
     </footer>
     
+    <script>
+async function vote(electionId, candidateId) {
+    try {
+        const response = await fetch('castVote.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `electionId=${electionId}&candidateId=${candidateId}`
+        });
 
+        const data = await response.json();
+        alert(data.message);
+
+        if (data.success) {
+            // Reload the page to update vote counts
+            window.location.reload();
+        }
+    } catch (error) {
+        alert('An error occurred while casting your vote v: ' + error);
+    }
+}
+</script>
 </body>
 </html>

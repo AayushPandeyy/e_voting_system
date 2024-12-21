@@ -2,6 +2,7 @@
 session_start();
 include 'db.php'; // Include the database connection
 
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $user = $_POST['email'];
     $pass = $_POST['password'];

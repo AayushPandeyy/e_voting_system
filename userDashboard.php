@@ -3,6 +3,8 @@ session_start();
 include 'db.php';
 $sql = "SELECT * FROM Election WHERE EndDate >= CURDATE()";
 $result = $conn->query($sql);
+$sql = "SELECT * FROM Election WHERE EndDate < CURDATE()";
+$pastPolls = $conn->query($sql);
 $userId = $_SESSION['user_id'];
 
 // Fetch the username from the database
@@ -10,16 +12,16 @@ $sql = "SELECT * FROM users WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $userId);
 $stmt->execute();
-$result = $stmt->get_result();
+$userData = $stmt->get_result();
 
-$username = null;
-if ($result->num_rows > 0) {
-    $row = $result->fetch_assoc();
+$fullname = null;
+if ($userData->num_rows > 0) {
+    $row = $userData->fetch_assoc();
     $fullname = $row['full_name'];
     $email = $row['email'];
     $idNumber = $row['id_number'];
 } else {
-    $username = "Unknown User";
+    $fullname = "Unknown User";
 }
 
 // Close the connection
@@ -64,6 +66,71 @@ $conn->close();
   margin-bottom: 10px;
 }
 
+/* Profile Screen css */
+.profile-card {
+    margin:auto;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
+  padding: 40px;
+  width: 100%;
+  max-width: 500px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+.profile-card:hover {
+  transform: translateY(-10px);
+}
+.profile-image {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 5px solid #f3f3f3;
+  margin: 0 auto 20px;
+}
+.profile-name {
+  font-size: 24px;
+  font-weight: 700;
+  color: #4a4a4a;
+  margin-bottom: 10px;
+}
+.profile-details {
+  background: #f9f9f9;
+  border-radius: 10px;
+  padding: 20px;
+  margin-top: 20px;
+}
+.profile-label {
+  font-weight: 600;
+  color: #667;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+.profile-value {
+  font-size: 18px;
+  color: #333;
+  margin-bottom: 15px;
+  font-weight: 300;
+}
+.social-links {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+.social-icon {
+  margin: 0 10px;
+  color: #764ba2;
+  font-size: 24px;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+.social-icon:hover {
+  color: #667eea;
+}
+
     </style>
     
 </head>
@@ -75,6 +142,7 @@ $conn->close();
             <ul>
                 <li><a href="#" onclick="showPage('instructions')">Instructions</a></li>
                 <li><a href="#" onclick="showPage('available-polls')">Available Polls</a></li>
+                <li><a href="#" onclick="showPage('past-polls')">Past Polls</a></li>
                 <li><a href="#" onclick="showPage('my-votes')">My Votes</a></li>
                 <li><a href="#" onclick="showPage('profile')">Profile</a></li>
                 <li><a href="logout.php">Logout</a></li>
@@ -107,6 +175,22 @@ $conn->close();
                         echo '<h3>' . $row["Title"] . '</h3>';
                         echo '<p>Ends: ' . $row["EndDate"] . '</p>';
                         echo '<button onClick = openModal(' . $row["ElectionID"] . ')>Vote Now</button>';
+                        echo '</div>';
+                    }
+                } else {
+                    echo "<p>No elections available at the moment.</p>";
+                }
+                ?>
+            </div>
+            <div id="past-polls" class="page">
+                <h2>Past Polls</h2>
+                <?php
+                if ($pastPolls->num_rows > 0) {
+                    while($row = $pastPolls->fetch_assoc()) {
+                        echo '<div class="poll-card">';
+                        echo '<h3>' . $row["Title"] . '</h3>';
+                        echo '<p>Ended On : ' . $row["EndDate"] . '</p>';
+                        echo '<button>See Result</button>';
                         echo '</div>';
                     }
                 } else {
