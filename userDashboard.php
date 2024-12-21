@@ -14,6 +14,18 @@ $stmt->bind_param("i", $userId);
 $stmt->execute();
 $userData = $stmt->get_result();
 
+// Add this query after your other SQL queries at the top of the file
+$votingHistoryQuery = "SELECT e.Title, v.VotedAt, c.Name as CandidateName 
+                      FROM Votes v
+                      JOIN Election e ON v.ElectionID = e.ElectionID
+                      JOIN Candidate c ON v.CandidateID = c.CandidateID
+                      WHERE v.VoterID = ?
+                      ORDER BY v.VotedAt DESC";
+$stmtHistory = $conn->prepare($votingHistoryQuery);
+$stmtHistory->bind_param("i", $userId);
+$stmtHistory->execute();
+$votingHistory = $stmtHistory->get_result();
+
 $fullname = null;
 if ($userData->num_rows > 0) {
     $row = $userData->fetch_assoc();
@@ -130,6 +142,36 @@ $conn->close();
 .social-icon:hover {
   color: #667eea;
 }
+#my-votes table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+#my-votes th,
+#my-votes td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+#my-votes th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #333;
+}
+
+#my-votes tr:hover {
+    background-color: #f5f5f5;
+}
+
+#my-votes p {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+}
 
     </style>
     
@@ -200,29 +242,30 @@ $conn->close();
             </div>
 
             <div id="my-votes" class="page">
-                <h2>My Voting History</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Poll Name</th>
-                            <th>Date</th>
-                            <th>Vote</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Presidential Election 2022</td>
-                            <td>Jan 10, 2022</td>
-                            <td>John Doe</td>
-                        </tr>
-                        <tr>
-                            <td>Local Council Election 2023</td>
-                            <td>Feb 5, 2023</td>
-                            <td>Jane Smith</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+    <h2>My Voting History</h2>
+    <?php if ($votingHistory->num_rows > 0): ?>
+        <table>
+            <thead>
+                <tr>
+                    <th>Poll Name</th>
+                    <th>Date</th>
+                    <th>Voted For</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($vote = $votingHistory->fetch_assoc()): ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($vote['Title']); ?></td>
+                        <td><?php echo date('M d, Y', strtotime($vote['VotedAt'])); ?></td>
+                        <td><?php echo htmlspecialchars($vote['CandidateName']); ?></td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+    <?php else: ?>
+        <p>You haven't voted in any elections yet.</p>
+    <?php endif; ?>
+</div>
 
             <div class="profile-card page" id="profile">
         <img src="/api/placeholder/150/150" alt="Profile Picture" class="profile-image">
