@@ -1,140 +1,71 @@
-/* General Reset */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Arial', sans-serif;
+/* Add these styles to your existing dashboardStyles.css */
+
+.quick-actions {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  margin-top: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Dashboard Container */
-.dashboard-container {
-    display: flex;
-    height: 100vh;
+.action-buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
 }
 
-/* Sidebar Styling */
-.sidebar {
-    width: 250px;
-    background-color: #2c3e50;
-    color: #fff;
-    padding: 20px;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+.action-button {
+  display: inline-block;
+  padding: 12px 20px;
+  background-color: #4caf50;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  text-align: center;
+  transition: background-color 0.3s;
 }
 
-.sidebar h2 {
-    text-align: center;
-    margin-bottom: 30px;
-    font-size: 24px;
-}
-
-.sidebar ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-.sidebar ul li {
-    margin: 15px 0;
-}
-
-.sidebar ul li a {
-    color: #fff;
-    text-decoration: none;
-    font-size: 18px;
-    display: block;
-    padding: 10px;
-    border-radius: 4px;
-    transition: background 0.3s;
-}
-
-.sidebar ul li a:hover {
-    background-color: #34495e;
-}
-
-/* Main Content Styling */
-.main-content {
-    flex-grow: 1;
-    padding: 30px;
-    background-color: #f4f4f4;
-    overflow-y: auto;
-}
-
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.header h1 {
-    font-size: 28px;
-    color: #333;
+.action-button:hover {
+  background-color: #45a049;
 }
 
 .user-info {
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-info span {
+  font-weight: 500;
 }
 
 .user-info img {
-    border-radius: 50%;
-    margin-left: 10px;
+  border-radius: 50%;
 }
 
-/* Stats Cards Styling */
-.stats-cards {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 30px;
+.sidebar a.active {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
-.card {
-    background-color: #ffffff;
-    width: 30%;
-    padding: 20px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    text-align: center;
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
 }
 
-.card h3 {
-    font-size: 20px;
-    margin-bottom: 10px;
+th,
+td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
 }
 
-.card p {
-    font-size: 24px;
-    color: #3498db;
-    margin: 0;
+th {
+  background-color: #f5f5f5;
+  font-weight: 600;
 }
 
-/* Recent Results Styling */
-.recent-results {
-    background-color: #ffffff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.recent-results h2 {
-    margin-bottom: 20px;
-    font-size: 22px;
-}
-
-.recent-results table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.recent-results table th, .recent-results table td {
-    padding: 10px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-}
-
-.recent-results table th {
-    background-color: #f8f8f8;
-}
-
-.recent-results table tbody tr:hover {
-    background-color: #f1f1f1;
+tr:hover {
+  background-color: #f9f9f9;
 }
