@@ -225,21 +225,21 @@ $conn->close();
                 ?>
             </div>
             <div id="past-polls" class="page">
-                <h2>Past Polls</h2>
-                <?php
-                if ($pastPolls->num_rows > 0) {
-                    while($row = $pastPolls->fetch_assoc()) {
-                        echo '<div class="poll-card">';
-                        echo '<h3>' . $row["Title"] . '</h3>';
-                        echo '<p>Ended On : ' . $row["EndDate"] . '</p>';
-                        echo '<button>See Result</button>';
-                        echo '</div>';
-                    }
-                } else {
-                    echo "<p>No elections available at the moment.</p>";
-                }
-                ?>
-            </div>
+    <h2>Past Polls</h2>
+    <?php
+    if ($pastPolls->num_rows > 0) {
+        while($row = $pastPolls->fetch_assoc()) {
+            echo '<div class="poll-card">';
+            echo '<h3>' . htmlspecialchars($row["Title"]) . '</h3>';
+            echo '<p>Ended On : ' . htmlspecialchars($row["EndDate"]) . '</p>';
+            echo '<button onclick="window.location.href=\'getResult.php?id=' . $row["ElectionID"] . '\'">See Result</button>';
+            echo '</div>';
+        }
+    } else {
+        echo "<p>No past elections available.</p>";
+    }
+    ?>
+</div>
 
             <div id="my-votes" class="page">
     <h2>My Voting History</h2>
