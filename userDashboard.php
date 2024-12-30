@@ -1,11 +1,17 @@
 <?php 
 session_start();
 include 'db.php';
+if (!isset($_SESSION['user_id'])) {
+    header("Location: index.php");
+    exit;
+}
+
 $sql = "SELECT * FROM Election WHERE EndDate >= CURDATE()";
 $result = $conn->query($sql);
 $sql = "SELECT * FROM Election WHERE EndDate < CURDATE()";
 $pastPolls = $conn->query($sql);
 $userId = $_SESSION['user_id'];
+
 
 // Fetch the username from the database
 $sql = "SELECT * FROM users WHERE id = ?";
@@ -31,7 +37,7 @@ if ($userData->num_rows > 0) {
     $row = $userData->fetch_assoc();
     $fullname = $row['full_name'];
     $email = $row['email'];
-    $idNumber = $row['id_number'];
+    $idNumber = $row['citizenship_number'];
 } else {
     $fullname = "Unknown User";
 }

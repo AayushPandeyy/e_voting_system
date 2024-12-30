@@ -7,6 +7,11 @@ if (!isset($_GET['id'])) {
     exit();
 }
 
+if (!isset($_SESSION['user_id'])) {
+    header("Location: index.php");
+    exit;
+}
+
 $electionId = $_GET['id'];
 
 // Get election details
