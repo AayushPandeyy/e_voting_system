@@ -319,6 +319,7 @@ button:hover {
                         <div class="candidate-info">
                             <p>Election: <?php echo htmlspecialchars($candidate['ElectionTitle']); ?></p>
                             <p>Status: <?php echo $candidate['ElectionStatus']; ?></p>
+                            <p>Party: <?php echo $candidate['Party']; ?></p>
                             <p>Votes Received: <?php echo $candidate['vote_count']; ?></p>
                         </div>
                         <div class="candidate-actions">

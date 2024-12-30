@@ -303,7 +303,6 @@ body {
                 <li><a href="electionManagement.php">Elections</a></li>
                 <li><a href="candidateManagement.php">Candidates</a></li>
                 <li><a href="voterManagement.php">Voter Management</a></li>
-                <li><a href="adminSettings.php">Settings</a></li>
                 <li><a href="logout.php">Logout</a></li>
             </ul>
         </div>
