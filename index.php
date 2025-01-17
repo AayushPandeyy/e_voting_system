@@ -1,8 +1,6 @@
 <?php
-
 session_start();
 if (isset($_SESSION['user_id'])) {
-    
     header("Location: userDashboard.php"); // Redirect if already logged in
     exit;
 }
@@ -17,25 +15,31 @@ include 'db.php';
     <link rel="stylesheet" href="./css/styles.css" />
   </head>
   <body>
-  <script>
-        // Function to show error messages in a popup
-        function showError(message) {
-            alert(message);
-        }
+    <style>
+      .error-message {
+        color: red;
+        font-size: 0.9rem;
+        margin-top: 5px;
+        display: none;
+      }
+    </style>
+    <script>
+      function showError(message) {
+        alert(message);
+      }
 
-        // Check if there's an error message in the URL
-        window.onload = function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const error = urlParams.get('error');
-            if (error) {
-                showError(error);
-            }
-        };
+      window.onload = function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        const error = urlParams.get("error");
+        if (error) {
+          showError(error);
+        }
+      };
     </script>
     <div class="container" id="container">
       <!-- Registration Form -->
       <div class="form-container sign-up-container">
-        <form action="register.php" method="POST">
+        <form id="registerForm" action="register.php" method="POST">
           <h1>Voter Registration</h1>
           <input
             type="text"
@@ -43,18 +47,25 @@ include 'db.php';
             placeholder="Full Name"
             required
           />
-          <input type="email" name="email" placeholder="Email" required />
           <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            required
+          type="email"
+          name="email"
+          placeholder="Email"
+          required
           />
+          <span class="error-message" id="register-email-error"></span>
           <input
-            type="text"
-            name="id_number"
-            placeholder="ID Number"
-            required
+          type="password"
+          name="password"
+          placeholder="Password"
+          required
+          />
+          <span class="error-message" id="register-password-error"></span>
+          <input
+          type="text"
+          name="id_number"
+          placeholder="ID Number"
+          required
           />
           <button type="submit">Register</button>
         </form>
@@ -62,15 +73,22 @@ include 'db.php';
 
       <!-- Login Form -->
       <div class="form-container sign-in-container">
-        <form action="login.php" method="POST">
+        <form id="loginForm" action="login.php" method="POST">
           <h1>Voter Login</h1>
-          <input type="email" name="email" placeholder="Email" required />
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            required
+          />
+          <span class="error-message" id="login-email-error"></span>
           <input
             type="password"
             name="password"
             placeholder="Password"
             required
           />
+          <span class="error-message" id="login-password-error"></span>
           <button type="submit">Login</button>
         </form>
       </div>
@@ -91,8 +109,7 @@ include 'db.php';
           <div class="overlay-panel overlay-right">
             <h1>Join Us</h1>
             <p>
-              Register to participate in the voting process. It's quick and
-              easy.
+              Register to participate in the voting process. It's quick and easy.
             </p>
             <button class="ghost" id="signUp">Register</button>
           </div>
@@ -100,5 +117,79 @@ include 'db.php';
       </div>
     </div>
     <script src="./js/scripts.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const registerForm = document.getElementById("registerForm");
+        const loginForm = document.getElementById("loginForm");
+
+        function validateEmail(email) {
+          return email.endsWith("@gmail.com");
+        }
+
+        function showError(field, message) {
+          const errorSpan = document.getElementById(field);
+          errorSpan.innerText = message;
+          errorSpan.style.display = "block";
+        }
+
+        function clearError(field) {
+          const errorSpan = document.getElementById(field);
+          errorSpan.innerText = "";
+          errorSpan.style.display = "none";
+        }
+
+        // Validate Registration Form
+        registerForm.addEventListener("submit", function (event) {
+          let hasError = false;
+
+          const email = registerForm.querySelector('input[name="email"]').value;
+          const password = registerForm.querySelector('input[name="password"]').value;
+
+          if (!validateEmail(email)) {
+            showError("register-email-error", "Only @gmail.com email addresses are allowed.");
+            hasError = true;
+          } else {
+            clearError("register-email-error");
+          }
+
+          if (password.length <= 8) {
+            showError("register-password-error", "Password must be longer than 8 characters.");
+            hasError = true;
+          } else {
+            clearError("register-password-error");
+          }
+
+          if (hasError) {
+            event.preventDefault(); // Prevent form submission
+          }
+        });
+
+        // Validate Login Form
+        loginForm.addEventListener("submit", function (event) {
+          let hasError = false;
+
+          const email = loginForm.querySelector('input[name="email"]').value;
+          const password = loginForm.querySelector('input[name="password"]').value;
+
+          if (!validateEmail(email)) {
+            showError("login-email-error", "Only @gmail.com email addresses are allowed.");
+            hasError = true;
+          } else {
+            clearError("login-email-error");
+          }
+
+          if (password.length <= 8) {
+            showError("login-password-error", "Password must be longer than 8 characters.");
+            hasError = true;
+          } else {
+            clearError("login-password-error");
+          }
+
+          if (hasError) {
+            event.preventDefault(); // Prevent form submission
+          }
+        });
+      });
+    </script>
   </body>
 </html>
