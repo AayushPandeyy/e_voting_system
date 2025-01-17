@@ -30,19 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $party = trim($_POST['party'] ?? '');
     
     // Handle file upload
-    $profile_picture = '';
-    if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] === 0) {
-        $allowed = ['jpg', 'jpeg', 'png'];
-        $file_ext = strtolower(pathinfo($_FILES['profile_picture']['name'], PATHINFO_EXTENSION));
-        
-        if (in_array($file_ext, $allowed)) {
-            $upload_dir = 'uploads/';
-            $filename = uniqid() . '.' . $file_ext;
-            if (move_uploaded_file($_FILES['profile_picture']['tmp_name'], $upload_dir . $filename)) {
-                $profile_picture = $upload_dir . $filename;
-            }
-        }
-    }
+    
 
     if (empty($name)) $errors[] = "Name is required";
     if ($election_id <= 0) $errors[] = "Valid election selection is required";
@@ -345,13 +333,7 @@ select:focus {
                         <input type="text" id="party" name="party" value="<?php echo htmlspecialchars($candidate['Party'] ?? ''); ?>">
                     </div>
 
-                    <div class="form-group">
-                        <label for="profile_picture">Profile Picture:</label>
-                        <?php if (!empty($candidate['ProfilePicture'])): ?>
-                            <img src="<?php echo htmlspecialchars($candidate['ProfilePicture']); ?>" alt="Current profile picture" style="max-width: 200px;">
-                        <?php endif; ?>
-                        <input type="file" id="profile_picture" name="profile_picture" accept=".jpg,.jpeg,.png">
-                    </div>
+                    
 
                     <div class="form-actions">
                         <button type="submit" class="btn btn-edit">Update Candidate</button>

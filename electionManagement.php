@@ -23,13 +23,25 @@ if (!$result || $user['role'] !== 'admin') {
 }
 
 // Handle election deletion
+// Handle election deletion
 if (isset($_POST['delete_election'])) {
     $election_id = $_POST['election_id'];
-    $deleteQuery = "DELETE FROM Election WHERE ElectionID = ?";
-    $stmt = $conn->prepare($deleteQuery);
+
+    
+
+    // First delete the associated candidates
+    $deleteCandidatesQuery = "DELETE FROM Candidate WHERE ElectionID = ?";
+    $stmt = $conn->prepare($deleteCandidatesQuery);
+    $stmt->bind_param("i", $election_id);
+    $stmt->execute();
+
+    // Then delete the election
+    $deleteElectionQuery = "DELETE FROM Election WHERE ElectionID = ?";
+    $stmt = $conn->prepare($deleteElectionQuery);
     $stmt->bind_param("i", $election_id);
     $stmt->execute();
 }
+
 
 // Handle election status toggle
 if (isset($_POST['toggle_status'])) {

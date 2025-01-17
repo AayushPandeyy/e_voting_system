@@ -5,6 +5,11 @@ if (!isset($_SESSION['user_id'])) {
     header("Location: index.php");
     exit;
   }
+  if (isset($_SESSION['error'])) {
+    $error_message = $_SESSION['error'];
+    unset($_SESSION['error']); // Clear the error message after displaying
+    echo "<script>alert('$error_message');</script>";
+}
   
   
 
@@ -276,7 +281,7 @@ $conn->close();
 </div>
 
             <div class="profile-card page" id="profile">
-        <img src="/api/placeholder/150/150" alt="Profile Picture" class="profile-image">
+        
         
         <div class="profile-name" id="fullname"><?php echo htmlspecialchars($fullname); ?></div>
         
@@ -288,11 +293,7 @@ $conn->close();
             <div id="email" class="profile-value"><?php echo htmlspecialchars($email); ?></div>
         </div>
         
-        <div class="social-links">
-            <a href="#" class="social-icon">✉️</a>
-            <a href="#" class="social-icon">📱</a>
-            <a href="#" class="social-icon">🌐</a>
-        </div>
+        
     </div>
         </div> <!-- End of Main Content -->
 

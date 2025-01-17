@@ -43,30 +43,34 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Handle profile picture upload
     $profilePicture = null;
-    if (isset($_FILES['profilePicture']) && $_FILES['profilePicture']['error'] === UPLOAD_ERR_OK) {
-        $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
-        $maxSize = 5 * 1024 * 1024; 
+if (isset($_FILES['profilePicture']) && $_FILES['profilePicture']['error'] === UPLOAD_ERR_OK) {
+    $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    $maxSize = 5 * 1024 * 1024; // 5MB
 
-        if (!in_array($_FILES['profilePicture']['type'], $allowedTypes)) {
-            $errors['profilePicture'] = "Invalid file type. Only JPG, PNG, and GIF are allowed.";
-        } elseif ($_FILES['profilePicture']['size'] > $maxSize) {
-            $errors['profilePicture'] = "File size too large. Maximum size is 5MB.";
+    if (!in_array($_FILES['profilePicture']['type'], $allowedTypes)) {
+        $errors['profilePicture'] = "Invalid file type. Only JPG, PNG, and GIF are allowed.";
+    } elseif ($_FILES['profilePicture']['size'] > $maxSize) {
+        $errors['profilePicture'] = "File size too large. Maximum size is 5MB.";
+    } else {
+        // Generate a unique filename
+        $extension = pathinfo($_FILES['profilePicture']['name'], PATHINFO_EXTENSION);
+        $filename = uniqid('candidate_', true) . '.' . $extension; // Only the filename
+        $uploadPath = 'uploads/candidates/' . $filename; // Full path for file operations
+
+        // Ensure the directory exists
+        if (!file_exists('uploads/candidates/')) {
+            mkdir('uploads/candidates/', 0777, true);
+        }
+
+        // Move the uploaded file to the target directory
+        if (move_uploaded_file($_FILES['profilePicture']['tmp_name'], $uploadPath)) {
+            $profilePicture = $filename; // Save only the filename for database
         } else {
-            $extension = pathinfo($_FILES['profilePicture']['name'], PATHINFO_EXTENSION);
-            $filename = uniqid('candidate_') . '.' . $extension;
-            $uploadPath = 'uploads/candidates/' . $filename;
-
-            if (!file_exists('uploads/candidates/')) {
-                mkdir('uploads/candidates/', 0777, true);
-            }
-
-            if (move_uploaded_file($_FILES['profilePicture']['tmp_name'], $uploadPath)) {
-                $profilePicture = $uploadPath;
-            } else {
-                $errors['profilePicture'] = "Failed to upload file";
-            }
+            $errors['profilePicture'] = "Failed to upload file.";
         }
     }
+}
+
 
     // If no errors, proceed with database operation
     if (empty($errors)) {

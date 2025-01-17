@@ -85,14 +85,15 @@ if (!in_array($electionId, $_SESSION['authenticated_elections'])) {
         <div class="candidate-grid">
             <?php while ($candidate = $candidates->fetch_assoc()): ?>
                 <div class="candidate-card">
-                <?php if (!empty($candidate['ProfilePicture']) && file_exists($candidate['ProfilePicture'])): ?>
-                        <img src="<?php echo htmlspecialchars($candidate['ProfilePicture']); ?>" 
-                             alt="<?php echo htmlspecialchars($candidate['Name']); ?>'s profile picture">
-                    <?php else: ?>
-                        <div class="candidate-card img placeholder">
-                            <?php echo strtoupper(substr($candidate['Name'], 0, 1)); ?>
-                        </div>
-                    <?php endif; ?>
+                <?php if (!empty($candidate['ProfilePicture'])): ?>
+                                <img src="uploads/candidates/<?php echo htmlspecialchars($candidate['ProfilePicture']); ?>" 
+                                     alt="<?php echo htmlspecialchars($candidate['Name']); ?>'s profile picture"
+                                     class="profile-picture">
+                            <?php else: ?>
+                                <img src="images/default-avatar.png" 
+                                     alt="Default profile picture"
+                                     class="profile-picture">
+                            <?php endif; ?>
                     <h3><?php echo htmlspecialchars($candidate['Name']); ?></h3>
                     <p><?php echo htmlspecialchars($candidate['Party']); ?></p>
                     <p><strong>Votes:</strong> <?php echo htmlspecialchars($candidate['VotesCount']); ?></p>
