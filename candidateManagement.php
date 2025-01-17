@@ -8,13 +8,55 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+
 // Handle candidate deletion
 if (isset($_POST['delete_candidate'])) {
     $candidate_id = $_POST['candidate_id'];
-    $deleteQuery = "DELETE FROM Candidate WHERE CandidateID = ?";
-    $stmt = $conn->prepare($deleteQuery);
-    $stmt->bind_param("i", $candidate_id);
-    $stmt->execute();
+    
+    try {
+        // Start transaction
+        $conn->begin_transaction();
+        
+        // First delete votes for this candidate
+        $deleteVotesQuery = "DELETE FROM Votes WHERE CandidateID = ?";
+        $stmt = $conn->prepare($deleteVotesQuery);
+        $stmt->bind_param("i", $candidate_id);
+        $stmt->execute();
+        
+        // Then delete the candidate
+        $deleteQuery = "DELETE FROM Candidate WHERE CandidateID = ?";
+        $stmt = $conn->prepare($deleteQuery);
+        $stmt->bind_param("i", $candidate_id);
+        $stmt->execute();
+        
+        // Commit transaction
+        $conn->commit();
+        
+        $_SESSION['success_message'] = "Candidate and associated votes deleted successfully.";
+        
+    } catch (Exception $e) {
+        // Rollback in case of error
+        $conn->rollback();
+        $_SESSION['error_message'] = "Error deleting candidate: " . $e->getMessage();
+    }
+    
+    // Redirect to refresh the page
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit;
+}
+
+// Check if user is admin
+$checkAdminQuery = "SELECT role FROM users WHERE id = ?";
+$stmt = $conn->prepare($checkAdminQuery);
+$stmt->bind_param("i", $_SESSION['user_id']);
+$stmt->execute();
+$result = $stmt->get_result();
+$user = $result->fetch_assoc();
+
+// If user is not admin, redirect them
+if (!$result || $user['role'] !== 'admin') {
+  header("Location: index.php");
+  exit;
 }
 
 // Fetch all candidates with their election information
@@ -22,7 +64,6 @@ $candidatesQuery = "
     SELECT 
         c.*,
         e.Title as ElectionTitle,
-        e.Status as ElectionStatus,
         COUNT(v.ID) as vote_count
     FROM Candidate c
     JOIN Election e ON c.ElectionID = e.ElectionID
@@ -290,11 +331,10 @@ button:hover {
         <div class="sidebar">
             <h2>E-Voting App</h2>
             <ul>
-                <li><a href="adminDashboard.php">Dashboard</a></li>
+                <li><a href="dashboard.php">Dashboard</a></li>
                 <li><a href="electionManagement.php">Elections</a></li>
                 <li><a href="candidateManagement.php" class="active">Candidates</a></li>
                 <li><a href="voterManagement.php">Voter Management</a></li>
-                <li><a href="adminSettings.php">Settings</a></li>
                 <li><a href="logout.php">Logout</a></li>
             </ul>
         </div>
@@ -318,7 +358,6 @@ button:hover {
                         <h3><?php echo htmlspecialchars($candidate['Name']); ?></h3>
                         <div class="candidate-info">
                             <p>Election: <?php echo htmlspecialchars($candidate['ElectionTitle']); ?></p>
-                            <p>Status: <?php echo $candidate['ElectionStatus']; ?></p>
                             <p>Party: <?php echo $candidate['Party']; ?></p>
                             <p>Votes Received: <?php echo $candidate['vote_count']; ?></p>
                         </div>

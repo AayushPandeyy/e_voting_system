@@ -4,8 +4,22 @@ include 'db.php';
 
 // Check if the user is logged in and is admin
 if (!isset($_SESSION['user_id'])) {
-    header("Location: index.php");
-    exit;
+  header("Location: index.php");
+  exit;
+}
+
+// Check if user is admin
+$checkAdminQuery = "SELECT role FROM users WHERE id = ?";
+$stmt = $conn->prepare($checkAdminQuery);
+$stmt->bind_param("i", $_SESSION['user_id']);
+$stmt->execute();
+$result = $stmt->get_result();
+$user = $result->fetch_assoc();
+
+// If user is not admin, redirect them
+if (!$result || $user['role'] !== 'admin') {
+  header("Location: index.php");
+  exit;
 }
 
 // Fetch admin details
@@ -16,7 +30,7 @@ $stmt->execute();
 $admin = $stmt->get_result()->fetch_assoc();
 
 // Get total voters count
-$votersQuery = "SELECT COUNT(*) as total FROM users";
+$votersQuery = "SELECT COUNT(*) as total FROM users where role = 'voter'";
 $totalVoters = $conn->query($votersQuery)->fetch_assoc()['total'];
 
 // Get total votes cast
@@ -27,28 +41,7 @@ $totalVotes = $conn->query($votesQuery)->fetch_assoc()['total'];
 $activePollsQuery = "SELECT COUNT(*) as total FROM Election WHERE EndDate >= CURDATE()";
 $activePolls = $conn->query($activePollsQuery)->fetch_assoc()['total'];
 
-// Get recent voting results from the latest election
-$recentResultsQuery = "
-    SELECT 
-        c.Name as Candidate,
-        c.VotesCount as Votes,
-        (c.VotesCount * 100.0 / (
-            SELECT COUNT(*) 
-            FROM Votes 
-            WHERE ElectionID = e.ElectionID
-        )) as Percentage,
-        e.Title as ElectionTitle
-    FROM Candidate c
-    JOIN Election e ON c.ElectionID = e.ElectionID
-    WHERE e.EndDate = (
-        SELECT MAX(EndDate) 
-        FROM Election 
-        WHERE EndDate <= CURDATE()
-    )
-    ORDER BY c.VotesCount DESC
-    LIMIT 5";
 
-$recentResults = $conn->query($recentResultsQuery);
 ?>
 
 <!DOCTYPE html>
@@ -332,35 +325,6 @@ body {
                 </div>
             </div>
 
-            <div class="recent-results">
-                <?php if ($recentResults->num_rows > 0): ?>
-                    <?php 
-                    $firstRow = $recentResults->fetch_assoc();
-                    $recentResults->data_seek(0); // Reset pointer
-                    ?>
-                    <h2>Recent Voting Results - <?php echo htmlspecialchars($firstRow['ElectionTitle']); ?></h2>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Candidate</th>
-                                <th>Votes</th>
-                                <th>Percentage</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php while ($result = $recentResults->fetch_assoc()): ?>
-                                <tr>
-                                    <td><?php echo htmlspecialchars($result['Candidate']); ?></td>
-                                    <td><?php echo number_format($result['Votes']); ?></td>
-                                    <td><?php echo number_format($result['Percentage'], 1); ?>%</td>
-                                </tr>
-                            <?php endwhile; ?>
-                        </tbody>
-                    </table>
-                <?php else: ?>
-                    <p>No recent election results available.</p>
-                <?php endif; ?>
-            </div>
 
             <!-- Add a new section for quick actions -->
             <div class="quick-actions">
@@ -368,7 +332,6 @@ body {
                 <div class="action-buttons">
                     <a href="createElection.php" class="action-button">Create New Election</a>
                     <a href="addCandidate.php" class="action-button">Add Candidate</a>
-                    <a href="electionResults.php" class="action-button">View All Results</a>
                 </div>
             </div>
         </div>

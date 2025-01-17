@@ -4,7 +4,9 @@ include 'db.php';
 if (!isset($_SESSION['user_id'])) {
     header("Location: index.php");
     exit;
-}
+  }
+  
+  
 
 $sql = "SELECT * FROM Election WHERE EndDate >= CURDATE()";
 $result = $conn->query($sql);

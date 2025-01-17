@@ -5,9 +5,7 @@ include 'db.php';
 //     header("Location: index.php");
 //     exit();
 // }
-// Assuming a database connection is established here
 $electionId = $_GET["id"];
-// Fetch election details from the database
 $query = "SELECT * FROM Election WHERE ElectionID = $electionId";
 $stmt = $conn->prepare($query);
 
@@ -56,6 +54,25 @@ if (!in_array($electionId, $_SESSION['authenticated_elections'])) {
 </head>
 
 <body>
+    <style>
+        .candidate-card img {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 50%;
+            margin-bottom: 1rem;
+            border: 3px solid #ddd;
+        }
+        
+        .candidate-card img.placeholder {
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: #999;
+        }
+    </style>
 <div class="container">
         <header>
             <h1><?php echo htmlspecialchars($election['Title']); ?></h1>
@@ -68,7 +85,14 @@ if (!in_array($electionId, $_SESSION['authenticated_elections'])) {
         <div class="candidate-grid">
             <?php while ($candidate = $candidates->fetch_assoc()): ?>
                 <div class="candidate-card">
-                    <img src="<?php echo htmlspecialchars($candidate['ProfilePicture']); ?>" alt="Candidate Image">
+                <?php if (!empty($candidate['ProfilePicture']) && file_exists($candidate['ProfilePicture'])): ?>
+                        <img src="<?php echo htmlspecialchars($candidate['ProfilePicture']); ?>" 
+                             alt="<?php echo htmlspecialchars($candidate['Name']); ?>'s profile picture">
+                    <?php else: ?>
+                        <div class="candidate-card img placeholder">
+                            <?php echo strtoupper(substr($candidate['Name'], 0, 1)); ?>
+                        </div>
+                    <?php endif; ?>
                     <h3><?php echo htmlspecialchars($candidate['Name']); ?></h3>
                     <p><?php echo htmlspecialchars($candidate['Party']); ?></p>
                     <p><strong>Votes:</strong> <?php echo htmlspecialchars($candidate['VotesCount']); ?></p>

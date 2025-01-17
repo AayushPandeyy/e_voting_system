@@ -8,6 +8,20 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+// Check if user is admin
+$checkAdminQuery = "SELECT role FROM users WHERE id = ?";
+$stmt = $conn->prepare($checkAdminQuery);
+$stmt->bind_param("i", $_SESSION['user_id']);
+$stmt->execute();
+$result = $stmt->get_result();
+$user = $result->fetch_assoc();
+
+// If user is not admin, redirect them
+if (!$result || $user['role'] !== 'admin') {
+  header("Location: index.php");
+  exit;
+}
+
 // Handle election deletion
 if (isset($_POST['delete_election'])) {
     $election_id = $_POST['election_id'];
@@ -269,7 +283,6 @@ body {
                 <li><a href="electionManagement.php" class="active">Elections</a></li>
                 <li><a href="candidateManagement.php">Candidates</a></li>
                 <li><a href="voterManagement.php">Voter Management</a></li>
-                <li><a href="adminSettings.php">Settings</a></li>
                 <li><a href="logout.php">Logout</a></li>
             </ul>
         </div>
@@ -288,9 +301,9 @@ body {
                 <?php while ($election = $elections->fetch_assoc()): ?>
                     <div class="election-card">
                         <h3><?php echo htmlspecialchars($election['Title']); ?></h3>
-                        <span class="election-status status-<?php echo strtolower($election['current_status']); ?>">
+                        <!-- <span class="election-status status-<?php echo strtolower($election['current_status']); ?>">
                             <?php echo $election['current_status']; ?>
-                        </span>
+                        </span> -->
                         <div>
                             <p>Start: <?php echo date('M d, Y', strtotime($election['StartDate'])); ?></p>
                             <p>End: <?php echo date('M d, Y', strtotime($election['EndDate'])); ?></p>
@@ -299,10 +312,7 @@ body {
                         <div class="election-actions">
                             <form method="POST" style="display: inline;">
                                 <input type="hidden" name="election_id" value="<?php echo $election['ElectionID']; ?>">
-                                <input type="hidden" name="current_status" value="<?php echo $election['Status']; ?>">
-                                <button type="submit" name="toggle_status" class="btn btn-toggle">
-                                    <?php echo $election['Status'] == 'Active' ? 'Deactivate' : 'Activate'; ?>
-                                </button>
+                                
                             </form>
                             <a href="editElection.php?id=<?php echo $election['ElectionID']; ?>" class="btn btn-edit">Edit</a>
                             <form method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this election?');">

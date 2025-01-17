@@ -8,6 +8,20 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+// Check if user is admin
+$checkAdminQuery = "SELECT role FROM users WHERE id = ?";
+$stmt = $conn->prepare($checkAdminQuery);
+$stmt->bind_param("i", $_SESSION['user_id']);
+$stmt->execute();
+$result = $stmt->get_result();
+$user = $result->fetch_assoc();
+
+// If user is not admin, redirect them
+if (!$result || $user['role'] !== 'admin') {
+  header("Location: index.php");
+  exit;
+}
+
 // Handle voter deletion
 if (isset($_POST['delete_voter'])) {
     $voter_id = $_POST['voter_id'];
@@ -17,25 +31,7 @@ if (isset($_POST['delete_voter'])) {
     $stmt->execute();
 }
 
-// Handle bulk voter import
-if (isset($_POST['import_voters']) && isset($_FILES['voter_file'])) {
-    $file = $_FILES['voter_file']['tmp_name'];
-    if (($handle = fopen($file, "r")) !== FALSE) {
-        while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
-            $email = $data[0];
-            $full_name = $data[1];
-            $citizenship_number = $data[2];
-            $password = password_hash($data[3], PASSWORD_DEFAULT);
-            
-            $insertQuery = "INSERT INTO users (email, full_name, citizenship_number, password, role) 
-                           VALUES (?, ?, ?, ?, 'voter')";
-            $stmt = $conn->prepare($insertQuery);
-            $stmt->bind_param("ssss", $email, $full_name, $citizenship_number, $password);
-            $stmt->execute();
-        }
-        fclose($handle);
-    }
-}
+
 
 // Pagination settings
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
@@ -188,11 +184,10 @@ $total_pages = ceil($total_voters / $records_per_page);
         <div class="sidebar">
             <h2>E-Voting App</h2>
             <ul>
-                <li><a href="adminDashboard.php">Dashboard</a></li>
+                <li><a href="dashboard.php">Dashboard</a></li>
                 <li><a href="electionManagement.php">Elections</a></li>
                 <li><a href="candidateManagement.php">Candidates</a></li>
                 <li><a href="voterManagement.php" class="active">Voter Management</a></li>
-                <li><a href="adminSettings.php">Settings</a></li>
                 <li><a href="logout.php">Logout</a></li>
             </ul>
         </div>

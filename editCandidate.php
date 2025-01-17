@@ -7,6 +7,20 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+// Check if user is admin
+$checkAdminQuery = "SELECT role FROM users WHERE id = ?";
+$stmt = $conn->prepare($checkAdminQuery);
+$stmt->bind_param("i", $_SESSION['user_id']);
+$stmt->execute();
+$result = $stmt->get_result();
+$user = $result->fetch_assoc();
+
+// If user is not admin, redirect them
+if (!$result || $user['role'] !== 'admin') {
+  header("Location: index.php");
+  exit;
+}
+
 $errors = [];
 $candidate_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
@@ -67,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$electionsQuery = "SELECT ElectionID, Title FROM Election WHERE EndDate >= CURDATE()";
+$electionsQuery = "SELECT ElectionID, Title FROM Election";
 $elections = $conn->query($electionsQuery);
 ?>
 
