@@ -8,7 +8,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     // Validate input (optional, but recommended)
     if (empty($user) || empty($pass)) {
-        echo "Please enter both email and password.";
+        header("Location: index.php?error=All fields are required.");
         exit();
     }
 
@@ -51,5 +51,5 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         echo "Failed to prepare the statement.";
     }
 }
-$conn->close(); // Close the database connection
+$conn->close(); 
 ?>

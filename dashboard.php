@@ -2,7 +2,7 @@
 session_start();
 include 'db.php';
 
-// Check if the user is logged in and is admin
+// Check if the user is logged in
 if (!isset($_SESSION['user_id'])) {
   header("Location: index.php");
   exit;

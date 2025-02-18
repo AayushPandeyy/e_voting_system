@@ -74,7 +74,7 @@ include 'db.php';
       <!-- Login Form -->
       <div class="form-container sign-in-container">
         <form id="loginForm" action="login.php" method="POST">
-          <h1>Voter Login</h1>
+          <h1>Login</h1>
           <input
             type="email"
             name="email"
@@ -123,8 +123,10 @@ include 'db.php';
         const loginForm = document.getElementById("loginForm");
 
         function validateEmail(email) {
-          return email.endsWith("@gmail.com");
-        }
+  const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  return regex.test(email);
+}
+
 
         function showError(field, message) {
           const errorSpan = document.getElementById(field);
@@ -146,7 +148,7 @@ include 'db.php';
           const password = registerForm.querySelector('input[name="password"]').value;
 
           if (!validateEmail(email)) {
-            showError("register-email-error", "Only @gmail.com email addresses are allowed.");
+            showError("register-email-error", "Please enter a valid email");
             hasError = true;
           } else {
             clearError("register-email-error");
@@ -172,13 +174,13 @@ include 'db.php';
           const password = loginForm.querySelector('input[name="password"]').value;
 
           if (!validateEmail(email)) {
-            showError("login-email-error", "Only @gmail.com email addresses are allowed.");
+            showError("login-email-error", "Please enter a valid email");
             hasError = true;
           } else {
             clearError("login-email-error");
           }
 
-          if (password.length <= 8) {
+          if (password.length < 8) {
             showError("login-password-error", "Password must be longer than 8 characters.");
             hasError = true;
           } else {

@@ -81,6 +81,7 @@ if (isset($_FILES['profilePicture']) && $_FILES['profilePicture']['error'] === U
             if ($stmt->execute()) {
                 $successMessage = "Candidate added successfully!";
                 $_POST = array(); // Clear form after successful submission
+                header("Location:candidateManagement.php");
             } else {
                 $errors['database'] = "Error adding candidate: " . $stmt->error;
             }

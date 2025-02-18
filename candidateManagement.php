@@ -8,6 +8,19 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+$checkAdminQuery = "SELECT role FROM users WHERE id = ?";
+$stmt = $conn->prepare($checkAdminQuery);
+$stmt->bind_param("i", $_SESSION['user_id']);
+$stmt->execute();
+$result = $stmt->get_result();
+$user = $result->fetch_assoc();
+
+// If user is not admin, redirect them
+if (!$result || $user['role'] !== 'admin') {
+    header("Location: index.php");
+    exit;
+}
+
 // Handle profile picture upload
 if (isset($_POST['update_profile_picture']) && isset($_FILES['profile_picture'])) {
     $candidate_id = $_POST['candidate_id'];
@@ -96,19 +109,8 @@ if (isset($_POST['delete_candidate'])) {
     exit;
 }
 
-// Check if user is admin
-$checkAdminQuery = "SELECT role FROM users WHERE id = ?";
-$stmt = $conn->prepare($checkAdminQuery);
-$stmt->bind_param("i", $_SESSION['user_id']);
-$stmt->execute();
-$result = $stmt->get_result();
-$user = $result->fetch_assoc();
 
-// If user is not admin, redirect them
-if (!$result || $user['role'] !== 'admin') {
-    header("Location: index.php");
-    exit;
-}
+
 
 // Fetch all candidates with their election information
 $candidatesQuery = "
@@ -135,15 +137,15 @@ $elections = $conn->query($electionsQuery);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Candidate Management</title>
+    <link rel="stylesheet" href="./css/dashboardStyles.css">
     <style>
         /* General Styling */
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f0f4f8;
-            margin: 0;
-            padding: 0;
-            color: #2d3748;
-            line-height: 1.6;
+            font-family: 'Roboto', sans-serif;
+    background: #f4f5f7;
+    color: #2d3748;
+    margin: 0;
+    padding: 0;
         }
 
         h1, h2 {
@@ -204,7 +206,6 @@ $elections = $conn->query($electionsQuery);
             margin-left: 250px;
             padding: 2rem;
             flex: 1;
-            background: #ffffff;
             min-height: 100vh;
             box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
             border-radius: 10px 0 0 0;

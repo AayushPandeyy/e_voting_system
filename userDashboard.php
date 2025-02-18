@@ -4,11 +4,24 @@ include 'db.php';
 if (!isset($_SESSION['user_id'])) {
     header("Location: index.php");
     exit;
-  }
-  if (isset($_SESSION['error'])) {
+}
+if (isset($_SESSION['error'])) {
     $error_message = $_SESSION['error'];
     unset($_SESSION['error']); // Clear the error message after displaying
     echo "<script>alert('$error_message');</script>";
+}
+
+$checkUserQuery = "SELECT role FROM users WHERE id = ?";
+$stmt = $conn->prepare($checkUserQuery);
+$stmt->bind_param("i", $_SESSION['user_id']);
+$stmt->execute();
+$result = $stmt->get_result();
+$user = $result->fetch_assoc();
+
+// If user is not admin, redirect them
+if (!$result || $user['role'] !== 'voter') {
+  header("Location: dashboard.php");
+  exit;
 }
   
   
@@ -216,7 +229,7 @@ $conn->close();
         <li>Click "Vote Now" on the election you wish to participate in.</li>
         <li>Enter your password to confirm your identity.</li>
         <li>Submit your vote and view your voting history in the "My Votes" section.</li>
-        <li>Ensure your profile details are correct in the "Profile" section.</li>
+        <li>Votes once casted cannot be edited or deleted.</li>
     </ol>
 </div>
             </div>

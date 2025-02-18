@@ -22,20 +22,20 @@ if (!$result || $user['role'] !== 'admin') {
   exit;
 }
 
-// Handle election deletion
-// Handle election deletion
+
 if (isset($_POST['delete_election'])) {
     $election_id = $_POST['election_id'];
 
-    
+    $deleteVotesQuery = "DELETE FROM Votes WHERE CandidateID IN (SELECT CandidateID FROM Candidate WHERE ElectionID = ?)";
+    $stmt = $conn->prepare($deleteVotesQuery);
+    $stmt->bind_param("i", $election_id);
+    $stmt->execute();
 
-    // First delete the associated candidates
     $deleteCandidatesQuery = "DELETE FROM Candidate WHERE ElectionID = ?";
     $stmt = $conn->prepare($deleteCandidatesQuery);
     $stmt->bind_param("i", $election_id);
     $stmt->execute();
 
-    // Then delete the election
     $deleteElectionQuery = "DELETE FROM Election WHERE ElectionID = ?";
     $stmt = $conn->prepare($deleteElectionQuery);
     $stmt->bind_param("i", $election_id);
@@ -43,17 +43,8 @@ if (isset($_POST['delete_election'])) {
 }
 
 
-// Handle election status toggle
-if (isset($_POST['toggle_status'])) {
-    $election_id = $_POST['election_id'];
-    $status = $_POST['current_status'] == 'Active' ? 'Inactive' : 'Active';
-    $updateQuery = "UPDATE Election SET Status = ? WHERE ElectionID = ?";
-    $stmt = $conn->prepare($updateQuery);
-    $stmt->bind_param("si", $status, $election_id);
-    $stmt->execute();
-}
 
-// Fetch all elections
+
 $electionsQuery = "
     SELECT 
         e.*,

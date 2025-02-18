@@ -1,10 +1,24 @@
 <?php
+session_start();
 include 'db.php';
 
-// if (!isset($_SESSION['user_id'])) {
-//     header("Location: index.php");
-//     exit();
-// }
+if (!isset($_SESSION['user_id'])) {
+    header("Location: index.php");
+    exit();
+}
+
+$checkUserQuery = "SELECT role FROM users WHERE id = ?";
+$stmt = $conn->prepare($checkUserQuery);
+$stmt->bind_param("i", $_SESSION['user_id']);
+$stmt->execute();
+$result = $stmt->get_result();
+$user = $result->fetch_assoc();
+
+// If user is not admin, redirect them
+if (!$result || $user['role'] !== 'voter') {
+  header("Location: index.php");
+  exit;
+}
 $electionId = $_GET["id"];
 $query = "SELECT * FROM Election WHERE ElectionID = $electionId";
 $stmt = $conn->prepare($query);
@@ -26,7 +40,6 @@ $stmtVoteCheck->bind_param("ii", $electionId, $_SESSION['user_id']);
 $stmtVoteCheck->execute();
 $hasVoted = $stmtVoteCheck->get_result()->fetch_assoc()['hasVoted'] > 0;
 
-session_start();
 
 if (!isset($_SESSION['authenticated_elections'])) {
     $_SESSION['authenticated_elections'] = array();

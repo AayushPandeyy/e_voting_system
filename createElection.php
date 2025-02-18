@@ -101,6 +101,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $successMessage = "Election created successfully!";
                 // Clear form data after successful submission
                 $_POST = array();
+                header("Location:electionManagement.php");
             } else {
                 $errors['database'] = "Error creating election: " . $stmt->error;
             }

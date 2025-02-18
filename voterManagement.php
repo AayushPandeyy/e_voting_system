@@ -25,11 +25,29 @@ if (!$result || $user['role'] !== 'admin') {
 // Handle voter deletion
 if (isset($_POST['delete_voter'])) {
     $voter_id = $_POST['voter_id'];
+
+    $updateVotesQuery = "
+        UPDATE Candidate c
+        JOIN Votes v ON c.CandidateID = v.CandidateID
+        SET c.VotesCount = c.VotesCount - 1
+        WHERE v.VoterID = ?";
+    $stmt = $conn->prepare($updateVotesQuery);
+    $stmt->bind_param("i", $voter_id);
+    $stmt->execute();
+
+    // Delete the voter's votes first
+    $deleteVotesQuery = "DELETE FROM Votes WHERE VoterID = ?";
+    $stmt = $conn->prepare($deleteVotesQuery);
+    $stmt->bind_param("i", $voter_id);
+    $stmt->execute();
+
+    // Now delete the voter
     $deleteQuery = "DELETE FROM users WHERE id = ? AND role != 'admin'";
     $stmt = $conn->prepare($deleteQuery);
     $stmt->bind_param("i", $voter_id);
     $stmt->execute();
 }
+
 
 
 

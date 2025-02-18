@@ -174,7 +174,15 @@ $candidates = $stmtCandidates->get_result();
                 <div class="winner-section">
                     <h2>Winner</h2>
                     <div class="winner-card">
-                        <img src="<?php echo htmlspecialchars($winner['ProfilePicture']); ?>" alt="Winner Image">
+                    <?php if (!empty($winner['ProfilePicture'])): ?>
+                                <img src="uploads/candidates/<?php echo htmlspecialchars($winner['ProfilePicture']); ?>" 
+                                     alt="<?php echo htmlspecialchars($winner['Name']); ?>'s profile picture"
+                                     class="profile-picture">
+                            <?php else: ?>
+                                <img src="images/default-avatar.png" 
+                                     alt="Default profile picture"
+                                     class="profile-picture">
+                            <?php endif; ?>
                         <h3><?php echo htmlspecialchars($winner['Name']); ?></h3>
                         <p class="party"><?php echo htmlspecialchars($winner['Party']); ?></p>
                         <div class="votes">
@@ -195,7 +203,15 @@ $candidates = $stmtCandidates->get_result();
                         $percentage = $totalBallots > 0 ? ($candidate['TotalVotes'] / $totalBallots) * 100 : 0;
                     ?>
                         <div class="candidate-card">
-                            <img src="<?php echo htmlspecialchars($candidate['ProfilePicture']); ?>" alt="Candidate Image">
+                        <?php if (!empty($winner['ProfilePicture'])): ?>
+                                <img src="uploads/candidates/<?php echo htmlspecialchars($winner['ProfilePicture']); ?>" 
+                                     alt="<?php echo htmlspecialchars($winner['Name']); ?>'s profile picture"
+                                     class="profile-picture">
+                            <?php else: ?>
+                                <img src="images/default-avatar.png" 
+                                     alt="Default profile picture"
+                                     class="profile-picture">
+                            <?php endif; ?>
                             <h3><?php echo htmlspecialchars($candidate['Name']); ?></h3>
                             <p class="party"><?php echo htmlspecialchars($candidate['Party']); ?></p>
                             <div class="progress-bar">
